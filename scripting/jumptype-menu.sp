@@ -8,10 +8,10 @@
 
 public Plugin myinfo = 
 {
-	name = "!bhop",
+	name = "JumpType Menu",
 	author = "domino_",
 	description = "bhop menu with client side autobhop support",
-	version = "0.1.2",
+	version = "0.1.3",
 	url = "https://github.com/neko-pm/jumptype-menu"
 };
 
@@ -46,14 +46,11 @@ public void OnPluginStart()
 	g_cvJumpAA		=	CreateConVar("sm_bhop_AA_LJ", "3000.0", "set sv_airaccelerate (0.0 to disable)");
 	g_cvJumpLJMaxS	=	CreateConVar("sm_bhop_lj_max", "300.0", "maximum speed for applying jump boosts to players");
 	
-	sv_airaccelerate	= FindConVar("sv_airaccelerate");
+	sv_airaccelerate = FindConVar("sv_airaccelerate");
 	sv_airaccelerate.Flags &= ~FCVAR_NOTIFY;
 	
-	sv_autobunnyhopping = FindConVar("sv_autobunnyhopping");
-	sv_autobunnyhopping.BoolValue = false;
-	
-	HookConVarChange(g_cvJumpLength, OnConVarChange);
-	HookConVarChange(g_cvJumpAA, OnConVarChange);
+	g_cvJumpType.AddChangeHook(OnConVarChange);
+	g_cvJumpAA.AddChangeHook(OnConVarChange);
 	
 	HookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
 	
@@ -71,8 +68,6 @@ public void OnPluginEnd()
 		sv_airaccelerate.RestoreDefault(true, false);
 	
 	sv_autobunnyhopping.RestoreDefault(true, false);
-	
-	UnhookEvent("player_jump", OnPlayerJump, EventHookMode_Pre);
 }
 
 public void OnConfigsExecuted()
@@ -81,6 +76,9 @@ public void OnConfigsExecuted()
 	FindConVar("sv_staminamax").SetInt(0, true, false);
 	FindConVar("sv_staminajumpcost").SetInt(0, true, false);
 	FindConVar("sv_staminalandcost").SetInt(0, true, false);
+	
+	sv_autobunnyhopping = FindConVar("sv_autobunnyhopping");
+	sv_autobunnyhopping.BoolValue = false;
 	
 	if(g_cvJumpAA.FloatValue > 0.0)
 		sv_airaccelerate.SetFloat(g_cvJumpAA.FloatValue, true, false);
@@ -105,7 +103,11 @@ public void OnConVarChange(ConVar convar, const char[] oldValue, const char[] ne
 
 public Action cmd_bhop(int iClient, any aArgs)
 {
-	if(!IsValidClient(iClient) || g_cvJumpType.IntValue != 2) return Plugin_Handled;
+	if(!IsValidClient(iClient) || g_cvJumpType.IntValue != 2)
+	{
+		PrintToChat(iClient, "\x01[\x0C%s\x01]\x01 you can currently only use the \x02%s\x01 style", CHAT_TAG, g_cvJumpType.IntValue ? "Long Jump" : "Easy Bhop");
+		return Plugin_Handled;
+	}
 	
 	if(aArgs > 0)
 	{
@@ -118,7 +120,7 @@ public Action cmd_bhop(int iClient, any aArgs)
 			case 2:		g_bLongJump[iClient] = !g_bLongJump[iClient];
 			default:	PrintToChat(iClient, "\x01[\x0C%s\x01]\x01 use \x02!bhop 0\x01 for \x04easy(auto) bhop\x01, \x02!bhop 1\x01 for \x04long jump or \x02!bhop 2\x01 to toggle", CHAT_TAG);
 		}
-		PrintToChat(iClient, "\x01[\x0C%s\x01]\x01 you are now using \x02%s", CHAT_TAG, g_bLongJump[iClient] ? "Long Jump":"Easy Bhop");
+		PrintToChat(iClient, "\x01[\x0C%s\x01]\x01 you are now using \x02%s", CHAT_TAG, g_bLongJump[iClient] ? "Long Jump" : "Easy Bhop");
 		
 		SetCookie(iClient, g_hCookieIndex, g_bLongJump[iClient]);
 		
@@ -149,7 +151,7 @@ public int MenuHandler_Bhop(Menu menu, MenuAction action, int iClient, int iOpti
 			menu.GetItem(iOption, sInfo, 32);
 			
 			g_bLongJump[iClient] = view_as<bool>(StringToInt(sInfo));
-			PrintToChat(iClient, "\x01[\x0C%s\x01]\x01 you are now using \x02%s", CHAT_TAG, g_bLongJump[iClient] ? "Long Jump":"Easy Bhop");
+			PrintToChat(iClient, "\x01[\x0C%s\x01]\x01 you are now using \x02%s", CHAT_TAG, g_bLongJump[iClient] ? "Long Jump" : "Easy Bhop");
 			
 			SetCookie(iClient, g_hCookieIndex, g_bLongJump[iClient]);
 			
