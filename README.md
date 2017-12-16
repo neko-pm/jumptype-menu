@@ -1,8 +1,9 @@
 # JumpType Menu
-This is a plugin I wrote a while ago for a friend to replace their existing plugin with one that utilizes the sv_autobunnyhopping ConVar.
+This is a plugin I wrote a while ago for a friend to replace their [existing plugin](https://github.com/Franc1sco/Franug-JumpType/blob/master/jumptype_menu.sp) with one that utilizes the sv_autobunnyhopping ConVar.
 
 credit to shavit: https://github.com/shavitush/bhoptimer & https://forums.alliedmods.net/showpost.php?p=1740177&postcount=3
 
+credit to Franc1sco: https://github.com/Franc1sco/Franug-JumpType
 ## Convars
 ```CPP
 sm_jumptype_only		2	//0:easy(auto), 1: longjump, 2:both (named for backwards compatablity)
